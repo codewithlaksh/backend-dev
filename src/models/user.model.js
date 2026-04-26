@@ -12,7 +12,7 @@ const userSchema = new Schema(
     username: {
       type: String,
       trim: true,
-      unique: [true, "Username must be unique"],
+      unique: true,
       minLength: [4, "Username must contain atleast 4 characters"],
       maxLength: [12, "Username must contain atmost 12 characters"],
       required: true,
@@ -20,7 +20,7 @@ const userSchema = new Schema(
     email: {
       type: String,
       trim: true,
-      unique: [true, "Email must be unique"],
+      unique: true,
       required: true,
     },
     password: {
@@ -52,6 +52,9 @@ userSchema.pre("save", async function (next) {
 // Custom methods on schema
 userSchema.method({
   async verifyPassword(candidatePassword) {
+    if (!this.password) {
+      throw new Error("Password field not selected - use .select('+password')");
+    }
     const result = await argon2.verify(this.password, candidatePassword);
     return result;
   },
