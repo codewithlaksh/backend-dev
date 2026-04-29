@@ -5,7 +5,7 @@ export const errorHandler = (err, req, res, next) => {
   if (err instanceof ApiError) {
     res
       .status(err.statusCode)
-      .json(new ApiResponse(err.statusCode, null, err.message));
+      .json(new ApiResponse(err.statusCode, err.errors || null, err.message));
   } else {
     res
       .status(500)
