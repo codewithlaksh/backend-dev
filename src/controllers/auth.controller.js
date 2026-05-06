@@ -14,7 +14,7 @@ const registerUser = asyncHandler(async (req, res, next) => {
 
   res
     .status(201)
-    .json(new ApiResponse(201, null, "User created successfully!"));
+    .json(new ApiResponse(201, null, "Verification code sent to email!"));
 });
 
 export const authController = { registerUser };
