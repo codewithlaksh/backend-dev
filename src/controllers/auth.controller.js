@@ -17,4 +17,20 @@ const registerUser = asyncHandler(async (req, res, next) => {
     .json(new ApiResponse(201, null, "Verification code sent to email!"));
 });
 
-export const authController = { registerUser };
+const resendCode = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
+  const result = await authService.resendCode(email);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, null, "Verification code resent to email!"));
+});
+
+const verifyEmail = asyncHandler(async (req, res, next) => {
+  const { email, code } = req.body;
+  const result = await authService.verifyEmail(email, code);
+
+  res.status(200).json(new ApiResponse(200, null, "Verification successful!"));
+});
+
+export const authController = { registerUser, resendCode, verifyEmail };

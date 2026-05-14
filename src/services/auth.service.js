@@ -53,4 +53,68 @@ const registerUser = async (name, username, email, password, cpassword) => {
   }
 };
 
-export const authService = { registerUser };
+const resendCode = async (email) => {
+  let errors = [];
+  let user = await userModel.findOne({
+    email,
+  });
+
+  if (!user) throw new ApiError(404, "User not found");
+
+  if (user.isVerified) throw new ApiError(400, "User already verified");
+
+  const verifyCode = generateCode();
+  const verifyCodeExpiry = new Date(Date.now() + 3 * 60 * 60 * 1000);
+
+  await user.updateOne({
+    $set: { verifyCode, verifyCodeExpiry },
+  });
+
+  try {
+    const result = await sendVerificationEmail(
+      user.username,
+      email,
+      "Email Verification Code - SecureX",
+      verifyCode,
+    );
+
+    return true;
+  } catch (error) {
+    throw new ApiError(
+      500,
+      error?.message || "Failed to send verification code!",
+    );
+  }
+};
+
+const verifyEmail = async (email, code) => {
+  let errors = [];
+  let user = await userModel.findOne({
+    email,
+  });
+
+  if (!user) throw new ApiError(404, "User not found");
+
+  if (user.isVerified) throw new ApiError(400, "User already verified");
+
+  const codeHasExpired = new Date() > user.verifyCodeExpiry;
+
+  if (codeHasExpired) {
+    errors.push({ field: "body.code", message: "Code has expired" });
+    throw new ApiError(400, "Validation failed", errors);
+  }
+
+  if (code !== user.verifyCode) {
+    errors.push({ field: "body.code", message: "Code is invalid" });
+    throw new ApiError(400, "Validation failed", errors);
+  }
+
+  await user.updateOne({
+    $set: { isVerified: true },
+    $unset: { verifyCode: 1, verifyCodeExpiry: 1 },
+  });
+
+  return true;
+};
+
+export const authService = { registerUser, resendCode, verifyEmail };

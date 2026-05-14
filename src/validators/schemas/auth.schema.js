@@ -27,3 +27,16 @@ export const registerSchema = z
     error: "Passwords do not match",
     path: ["cpassword"],
   });
+
+export const resendCodeSchema = z.object({
+  email: z
+    .email({ error: "Invalid email" })
+    .nonempty({ error: "Email is required" }),
+});
+
+export const verifyEmailSchema = z.object({
+  email: z
+    .email({ error: "Invalid email" })
+    .nonempty({ error: "Email is required" }),
+  code: z.string().nonempty({ error: "Code is required" }),
+});
