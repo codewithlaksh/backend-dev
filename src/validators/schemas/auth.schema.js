@@ -40,3 +40,24 @@ export const verifyEmailSchema = z.object({
     .nonempty({ error: "Email is required" }),
   code: z.string().nonempty({ error: "Code is required" }),
 });
+
+export const loginSchema = z
+  .object({
+    identifier: z.string().nonempty({ error: "Identifier is required" }),
+    password: z.string().nonempty({ error: "Password is required" }),
+  })
+  .refine(
+    (data) => {
+      const usernameRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$/;
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+      return (
+        data.identifier.match(usernameRegex) ||
+        data.identifier.match(emailRegex)
+      );
+    },
+    {
+      error: "Identifier is invalid",
+      path: ["identifier"],
+    },
+  );

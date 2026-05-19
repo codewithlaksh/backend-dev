@@ -1,6 +1,7 @@
 import { authService } from "../services/auth.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { NODE_ENV } from "../constants.js";
 
 const registerUser = asyncHandler(async (req, res, next) => {
   const { name, username, email, password, cpassword } = req.body;
@@ -33,4 +34,27 @@ const verifyEmail = asyncHandler(async (req, res, next) => {
   res.status(200).json(new ApiResponse(200, null, "Verification successful!"));
 });
 
-export const authController = { registerUser, resendCode, verifyEmail };
+const loginUser = asyncHandler(async (req, res, next) => {
+  const { identifier, password } = req.body;
+  const { access_token, refresh_token } = await authService.loginUser(
+    identifier,
+    password,
+  );
+
+  res.cookie("refresh_token", refresh_token, {
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    secure: NODE_ENV === "production",
+    httpOnly: true,
+  });
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, { access_token }, "Logged in successfully!"));
+});
+
+export const authController = {
+  registerUser,
+  resendCode,
+  verifyEmail,
+  loginUser,
+};

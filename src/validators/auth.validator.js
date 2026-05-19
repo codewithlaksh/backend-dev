@@ -3,6 +3,7 @@ import {
   registerSchema,
   resendCodeSchema,
   verifyEmailSchema,
+  loginSchema,
 } from "./schemas/auth.schema.js";
 
 export const registerValidator = z.object({
@@ -15,4 +16,8 @@ export const resendCodeValidator = z.object({
 
 export const verifyEmailValidator = z.object({
   body: verifyEmailSchema,
+});
+
+export const loginValidator = z.object({
+  body: loginSchema,
 });

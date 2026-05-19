@@ -117,4 +117,40 @@ const verifyEmail = async (email, code) => {
   return true;
 };
 
-export const authService = { registerUser, resendCode, verifyEmail };
+const loginUser = async (identifier, password) => {
+  let errors = [];
+  const usernameRegex = /^(?=.*[a-zA-Z])(?=.*[0-9])[A-Za-z0-9]+$/;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  let user;
+
+  if (identifier.match(usernameRegex)) {
+    user = await userModel.findOne({ username: identifier }).select('+password');
+  } else {
+    user = await userModel.findOne({ email: identifier }).select('+password');
+  }
+
+  if (!user) {
+    errors.push({ field: "body.identifier", message: "User not found" });
+    throw new ApiError(404, "Validation failed", errors);
+  }
+
+  const result = await user.verifyPassword(password);
+
+  if (!result) {
+    errors.push({ field: "body.password", message: "Invalid password" });
+    throw new ApiError(400, "Validation failed", errors);
+  }
+
+  /*
+    access tokens -> session management, authorization of APIs
+    refresh tokens -> rotate access token [, refresh token]
+  */
+
+  return {
+    access_token: user.generateAccessToken(),
+    refresh_token: user.generateRefreshToken(),
+  };
+};
+
+export const authService = { registerUser, resendCode, verifyEmail, loginUser };

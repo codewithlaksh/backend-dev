@@ -5,6 +5,7 @@ import {
   registerValidator,
   resendCodeValidator,
   verifyEmailValidator,
+  loginValidator,
 } from "../validators/auth.validator.js";
 
 const router = Router();
@@ -20,5 +21,7 @@ router
 router
   .route("/verify")
   .post(validate(verifyEmailValidator), authController.verifyEmail);
+
+router.route("/login").post(validate(loginValidator), authController.loginUser);
 
 export { router as authRouter };
