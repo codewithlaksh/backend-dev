@@ -24,4 +24,8 @@ router
 
 router.route("/login").post(validate(loginValidator), authController.loginUser);
 
+router
+    .route("/refresh")
+    .post(authController.refreshAccessToken)
+
 export { router as authRouter };

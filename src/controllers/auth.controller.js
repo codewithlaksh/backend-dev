@@ -2,6 +2,7 @@ import { authService } from "../services/auth.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { NODE_ENV } from "../constants.js";
+import {ApiError} from "../utils/ApiError.js";
 
 const registerUser = asyncHandler(async (req, res, next) => {
   const { name, username, email, password, cpassword } = req.body;
@@ -52,9 +53,24 @@ const loginUser = asyncHandler(async (req, res, next) => {
     .json(new ApiResponse(200, { access_token }, "Logged in successfully!"));
 });
 
+const refreshAccessToken = asyncHandler(
+    async (req, res, next) => {
+      const refresh_token = req.cookies['refresh_token'];
+
+      if (!refresh_token) throw new ApiError(401, "Unauthorized access!");
+
+      const result = await authService.refreshAccessToken(refresh_token);
+
+      res
+          .status(200)
+          .json(new ApiResponse(200, {access_token: result}, "Refreshed access token"));
+    }
+);
+
 export const authController = {
   registerUser,
   resendCode,
   verifyEmail,
   loginUser,
+  refreshAccessToken
 };

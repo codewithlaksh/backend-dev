@@ -2,6 +2,8 @@ import { ApiError } from "../utils/ApiError.js";
 import { userModel } from "../models/user.model.js";
 import { generateCode } from "../lib/generate-code.js";
 import { sendVerificationEmail } from "../mails/send-verification-email.js";
+import jwt from "jsonwebtoken";
+import {REFRESH_TOKEN_SECRET} from "../constants.js";
 
 const registerUser = async (name, username, email, password, cpassword) => {
   let errors = [];
@@ -153,4 +155,18 @@ const loginUser = async (identifier, password) => {
   };
 };
 
-export const authService = { registerUser, resendCode, verifyEmail, loginUser };
+const refreshAccessToken = async (refreshToken) => {
+  try {
+    const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+    const { id } = decoded;
+
+    const user = await userModel.findById(id);
+
+    return user.generateAccessToken();
+  } catch (error) {
+    console.log(error);
+    throw new ApiError(500, "Invalid or expired refresh token!");
+  }
+}
+
+export const authService = { registerUser, resendCode, verifyEmail, loginUser, refreshAccessToken };
