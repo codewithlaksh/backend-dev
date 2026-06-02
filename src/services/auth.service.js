@@ -3,7 +3,7 @@ import { userModel } from "../models/user.model.js";
 import { generateCode } from "../lib/generate-code.js";
 import { sendVerificationEmail } from "../mails/send-verification-email.js";
 import jwt from "jsonwebtoken";
-import {REFRESH_TOKEN_SECRET} from "../constants.js";
+import {NODE_ENV, REFRESH_TOKEN_SECRET} from "../constants.js";
 
 const registerUser = async (name, username, email, password, cpassword) => {
   let errors = [];
@@ -126,10 +126,10 @@ const loginUser = async (identifier, password) => {
 
   let user;
 
-  if (identifier.match(usernameRegex)) {
-    user = await userModel.findOne({ username: identifier }).select('+password');
+  if (emailRegex.test(identifier)) {
+    user = await userModel.findOne({ email: identifier }).select("+password");
   } else {
-    user = await userModel.findOne({ email: identifier }).select('+password');
+    user = await userModel.findOne({ username: identifier }).select("+password");
   }
 
   if (!user) {
@@ -162,9 +162,12 @@ const refreshAccessToken = async (refreshToken) => {
 
     const user = await userModel.findById(id);
 
+    if (!user) throw new ApiError(401, "Invalid or expired refresh token!");
+
     return user.generateAccessToken();
   } catch (error) {
-    throw new ApiError(500, "Invalid or expired refresh token!");
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(401, "Invalid or expired refresh token!");
   }
 }
 
@@ -178,10 +181,12 @@ const logoutUser = (req, res) => {
     try {
       jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
 
-      res.clearCookie('refresh_token');
+      res.clearCookie('refresh_token', {
+        secure: NODE_ENV === "production"
+      });
       return true;
     } catch (error) {
-      throw new ApiError(500, "Invalid or expired refresh token!");
+      throw new ApiError(401, "Invalid or expired refresh token!");
     }
   }
 }

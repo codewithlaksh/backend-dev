@@ -12,8 +12,9 @@ export const registerSchema = z
         error: "Username must contain both alphabets & number",
       }),
     email: z
-      .email({ error: "Invalid email" })
-      .nonempty({ error: "Email is required" }),
+      .string()
+      .nonempty({ error: "Email is required" })
+      .pipe(z.email({ error: "Invalid email" })),
     password: z
       .string()
       .nonempty({ error: "Password is required" })

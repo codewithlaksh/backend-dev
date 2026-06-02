@@ -9,10 +9,11 @@ import {
 if (
   !NODEMAILER_HOST ||
   !NODEMAILER_PORT ||
+  isNaN(+NODEMAILER_PORT) ||
   !NODEMAILER_USER ||
   !NODEMAILER_PASS
 )
-  throw new Error("Nodemailer missing params!");
+  throw new Error("Nodemailer missing params or invalid params!");
 
 // Create a transporter using SMTP
 const transporter = nodemailer.createTransport({

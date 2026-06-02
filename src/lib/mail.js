@@ -12,5 +12,6 @@ export const sendMail = async (to, subject, html) => {
     return !!info.messageId;
   } catch (err) {
     console.error("Error while sending mail:", err);
+    throw err;
   }
 };
