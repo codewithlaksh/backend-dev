@@ -67,10 +67,21 @@ const refreshAccessToken = asyncHandler(
     }
 );
 
+const logoutUser = asyncHandler(
+    async (req, res, next) => {
+      const result = authService.logoutUser(req, res);
+
+      res
+          .status(200)
+          .json(new ApiResponse(200, null, "Logged out successfully"));
+    }
+)
+
 export const authController = {
   registerUser,
   resendCode,
   verifyEmail,
   loginUser,
-  refreshAccessToken
+  refreshAccessToken,
+  logoutUser
 };

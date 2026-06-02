@@ -7,6 +7,7 @@ import {
   verifyEmailValidator,
   loginValidator,
 } from "../validators/auth.validator.js";
+import {checkAuth} from "../middlewares/check-auth.middleware.js";
 
 const router = Router();
 
@@ -27,5 +28,9 @@ router.route("/login").post(validate(loginValidator), authController.loginUser);
 router
     .route("/refresh")
     .post(authController.refreshAccessToken)
+
+router
+    .route("/logout")
+    .post(checkAuth, authController.logoutUser);
 
 export { router as authRouter };

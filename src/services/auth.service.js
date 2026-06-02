@@ -164,9 +164,26 @@ const refreshAccessToken = async (refreshToken) => {
 
     return user.generateAccessToken();
   } catch (error) {
-    console.log(error);
     throw new ApiError(500, "Invalid or expired refresh token!");
   }
 }
 
-export const authService = { registerUser, resendCode, verifyEmail, loginUser, refreshAccessToken };
+const logoutUser = (req, res) => {
+  const cookies = req.cookies;
+  const refreshToken = cookies['refresh_token'];
+
+  if (!refreshToken) {
+    throw new ApiError(401, "Refresh token not set!")
+  } else {
+    try {
+      jwt.verify(refreshToken, REFRESH_TOKEN_SECRET);
+
+      res.clearCookie('refresh_token');
+      return true;
+    } catch (error) {
+      throw new ApiError(500, "Invalid or expired refresh token!");
+    }
+  }
+}
+
+export const authService = { registerUser, resendCode, verifyEmail, loginUser, refreshAccessToken, logoutUser };
