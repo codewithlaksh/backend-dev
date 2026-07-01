@@ -12,4 +12,21 @@ const me = asyncHandler(
     }
 )
 
-export const userController = { me };
+const createProfile = asyncHandler((
+    async (req, res) => {
+        const data = {
+            phone: req.body.phone,
+            socialLinks: JSON.parse(req.body.socialLinks),
+            bio: req.body.bio
+        }
+        const localFilePath = req.file?.path;
+
+        const result = await userService.createProfile(req.user.id, data, localFilePath);
+
+        return res
+            .status(200)
+            .json(new ApiResponse(201, result, "User profile created!"))
+    }
+))
+
+export const userController = { me, createProfile };

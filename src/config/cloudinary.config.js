@@ -8,13 +8,16 @@ cloudinary.config({
     api_secret: CLOUDINARY_API_SECRET
 });
 
-export const uploadToCloudinary = async (localFilePath) => {
-    if (!localFilePath) throw new Error("Please provide local path to file!");
+const CLOUDINARY_FOLDER_PREFIX = "SecureXBackend/";
 
+export const uploadToCloudinary = async (localFilePath, folder) => {
+    if (!localFilePath) throw new Error("Please provide local path to file!");
+    const folderPath = `${CLOUDINARY_FOLDER_PREFIX}/${folder}`;
     try {
         return await cloudinary.uploader.upload(
             localFilePath,
             {
+                folder: folderPath,
                 resource_type: "auto"
             }
         );
