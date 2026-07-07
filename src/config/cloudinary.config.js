@@ -1,6 +1,7 @@
 import fs from "fs";
 import { v2 as cloudinary } from 'cloudinary';
 import {CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, CLOUDINARY_CLOUD_NAME} from "../constants.js";
+import {extractCloudinaryPublicId} from "../utils/extractCloudinaryPublicId.js";
 
 cloudinary.config({
     cloud_name: CLOUDINARY_CLOUD_NAME,
@@ -27,3 +28,17 @@ export const uploadToCloudinary = async (localFilePath, folder) => {
         fs.unlinkSync(localFilePath);
     }
 }
+
+export const deleteFromCloudinary = async (url, resourceType = "image") => {
+    if (!url) throw new Error("Please provide url!");
+
+    try {
+        const publicId = extractCloudinaryPublicId(url);
+        return await cloudinary.uploader.destroy(publicId, {
+            resource_type: resourceType,
+        });
+    } catch (error) {
+        console.log("Error deleting file from Cloudinary: " + error.message);
+        throw error;
+    }
+};

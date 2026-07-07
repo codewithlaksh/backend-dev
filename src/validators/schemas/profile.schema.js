@@ -22,3 +22,5 @@ export const createProfileSchema = z.object({
     }, z.array(socialLinksSchema)),
     bio: z.string().optional()
 })
+
+export const updateProfileSchema = createProfileSchema.partial();

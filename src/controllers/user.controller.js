@@ -29,4 +29,21 @@ const createProfile = asyncHandler((
     }
 ))
 
-export const userController = { me, createProfile };
+const updateProfile = asyncHandler((
+    async (req, res) => {
+        const data = {
+            phone: req.body.phone,
+            socialLinks: JSON.parse(req.body.socialLinks),
+            bio: req.body.bio
+        }
+        const localFilePath = req.file?.path;
+
+        const result = await userService.updateProfile(req.user.id, req.query.profileId, data, localFilePath);
+
+        return res
+            .status(200)
+            .json(new ApiResponse(200, result, "User profile created!"))
+    }
+))
+
+export const userController = { me, createProfile, updateProfile };
