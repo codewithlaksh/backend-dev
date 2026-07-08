@@ -5,6 +5,7 @@ import { connectDB } from "./src/lib/db.js";
 import { errorHandler } from "./src/middlewares/error-handler.middleware.js";
 import { authRouter } from "./src/routes/auth.route.js";
 import cookieParser from "cookie-parser";
+import {userRouter} from "./src/routes/user.route.js";
 const app = express();
 const port = process.env.PORT || 8080;
 
@@ -16,6 +17,7 @@ connectDB()
     app.use(cookieParser());
 
     app.use("/api/v1/auth", authRouter);
+    app.use("/api/v1/users", userRouter);
 
     // Global error handler
     app.use(errorHandler);
