@@ -21,7 +21,7 @@ const normalizeCloudinaryPrefix = (prefix) => {
 
 export const uploadToCloudinary = async (localFilePath, folder) => {
     if (!localFilePath) throw new Error("Please provide local path to file!");
-    const folderPath = `${CLOUDINARY_FOLDER_PREFIX}/${folder}`;
+    const folderPath = normalizeCloudinaryPrefix(folder);
     try {
         return await cloudinary.uploader.upload(
             localFilePath,
@@ -32,8 +32,11 @@ export const uploadToCloudinary = async (localFilePath, folder) => {
         );
     } catch (error) {
         console.log("Error uploading file: " + error.message);
+        throw error;
     } finally {
-        fs.unlinkSync(localFilePath);
+        if (fs.existsSync(localFilePath)) {
+            fs.unlinkSync(localFilePath);
+        }
     }
 }
 

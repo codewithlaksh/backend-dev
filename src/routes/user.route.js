@@ -1,3 +1,4 @@
+import fs from "fs";
 import {Router} from "express";
 import {checkAuth} from "../middlewares/check-auth.middleware.js";
 import {userController} from "../controllers/user.controller.js";
@@ -10,10 +11,24 @@ import {
 import {upload} from "../middlewares/multer.middleware.js";
 const router = Router();
 
+const validateAndCleanupFile = (validator) => {
+    const validateMiddleware = validate(validator);
+
+    return (req, res, next) => {
+        validateMiddleware(req, res, (error) => {
+            if (error && req.file?.path && fs.existsSync(req.file.path)) {
+                fs.unlinkSync(req.file.path);
+            }
+
+            next(error);
+        });
+    };
+};
+
 router.route('/me').get(checkAuth, userController.me);
 router.route('/')
-    .post(checkAuth, upload.single('avatar'), validate(createProfileValidator), userController.createProfile)
-    .patch(checkAuth, upload.single('avatar'), validate(updateProfileValidator), userController.updateProfile)
+    .post(checkAuth, upload.single('avatar'), validateAndCleanupFile(createProfileValidator), userController.createProfile)
+    .patch(checkAuth, upload.single('avatar'), validateAndCleanupFile(updateProfileValidator), userController.updateProfile)
     .delete(checkAuth, validate(deleteProfileValidator), userController.deleteProfile)
 // TASK: Complete this route
 // router.route('/update-password').patch(

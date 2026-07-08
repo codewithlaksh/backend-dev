@@ -55,7 +55,7 @@ const deleteProfile = asyncHandler(
 
         return res
             .status(204)
-            .json(new ApiResponse(204, null, "User profile deleted!"))
+            .end()
     }
 )
 
