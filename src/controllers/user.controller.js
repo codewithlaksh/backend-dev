@@ -24,7 +24,7 @@ const createProfile = asyncHandler((
         const result = await userService.createProfile(req.user.id, data, localFilePath);
 
         return res
-            .status(200)
+            .status(201)
             .json(new ApiResponse(201, result, "User profile created!"))
     }
 ))
@@ -46,4 +46,22 @@ const updateProfile = asyncHandler((
     }
 ))
 
-export const userController = { me, createProfile, updateProfile };
+const deleteProfile = asyncHandler(
+    async (req, res) => {
+        const userId = req.user.id;
+        const profileId = req.query.profileId;
+
+        const result = await userService.deleteProfile(userId, profileId);
+
+        return res
+            .status(204)
+            .json(new ApiResponse(204, null, "User profile deleted!"))
+    }
+)
+
+// TASK: Complete this controller
+// const updatePassword = asyncHandler(
+//     async (req, res) => {}
+// )
+
+export const userController = { me, createProfile, updateProfile, deleteProfile };

@@ -11,6 +11,14 @@ cloudinary.config({
 
 const CLOUDINARY_FOLDER_PREFIX = "SecureXBackend/";
 
+const normalizeCloudinaryPrefix = (prefix) => {
+    if (!prefix) throw new Error("Please provide folder prefix!");
+
+    return `${CLOUDINARY_FOLDER_PREFIX}${prefix}`
+        .replace(/\/+/g, "/")
+        .replace(/\/$/, "");
+};
+
 export const uploadToCloudinary = async (localFilePath, folder) => {
     if (!localFilePath) throw new Error("Please provide local path to file!");
     const folderPath = `${CLOUDINARY_FOLDER_PREFIX}/${folder}`;
@@ -39,6 +47,21 @@ export const deleteFromCloudinary = async (url, resourceType = "image") => {
         });
     } catch (error) {
         console.log("Error deleting file from Cloudinary: " + error.message);
+        throw error;
+    }
+};
+
+export const deleteCloudinaryFolderByPrefix = async (prefix, resourceType = "image") => {
+    const folderPrefix = normalizeCloudinaryPrefix(prefix);
+
+    try {
+        await cloudinary.api.delete_resources_by_prefix(folderPrefix, {
+            resource_type: resourceType,
+        });
+
+        return await cloudinary.api.delete_folder(folderPrefix);
+    } catch (error) {
+        console.log("Error deleting Cloudinary folder by prefix: " + error.message);
         throw error;
     }
 };

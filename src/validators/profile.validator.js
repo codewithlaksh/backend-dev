@@ -13,3 +13,11 @@ export const updateProfileValidator = z.object({
         })
     })
 })
+
+export const deleteProfileValidator = z.object({
+    query: z.object({
+        profileId: z.string({
+            error: 'Missing profile id!'
+        })
+    })
+})
