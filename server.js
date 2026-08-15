@@ -6,11 +6,18 @@ import { errorHandler } from "./src/middlewares/error-handler.middleware.js";
 import { authRouter } from "./src/routes/auth.route.js";
 import cookieParser from "cookie-parser";
 import {userRouter} from "./src/routes/user.route.js";
+import cors from "cors";
+
 const app = express();
 const port = process.env.PORT || 8080;
 
 connectDB()
   .then(() => {
+    app.use(cors({
+      origin: process.env.FRONTEND_ORIGIN,
+      credentials: true
+    }));  // * (default) --> allow all origins to request
+
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
 
